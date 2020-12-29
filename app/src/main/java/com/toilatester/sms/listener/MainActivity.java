@@ -109,11 +109,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else if (view == stopServer)
             stopService(new Intent(this, NettyServerService.class));
         else if (view == fetchSMS) {
-
-            List<SMSData> data = this.readSMS.getAllSMSMessages();
-            data.forEach(sms -> {
-                System.out.println("====================DEBUG: " + sms.getReceiveDate().toString() + " - " + sms.getMobile() + " [" + sms.getMessage() + "]");
-            });
+            List<SMSData> allSMSMessages = this.readSMS.getAllSMSMessages();
+            for (SMSData data : allSMSMessages) {
+                System.out.println("====================DEBUG: " + data.getReceiveDate().toString() + " - " + data.getMobile() + " [" + data.getMessage() + "]");
+            }
         }
     }
 }
