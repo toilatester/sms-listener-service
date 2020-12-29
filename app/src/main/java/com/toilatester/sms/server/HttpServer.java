@@ -1,4 +1,4 @@
-package com.toilatester.smsserver;
+package com.toilatester.sms.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;

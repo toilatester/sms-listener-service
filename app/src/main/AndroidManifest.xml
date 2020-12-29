@@ -16,15 +16,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SMSListener">
-        <activity android:name="com.toilatester.smslistener.MainActivity">
+        <activity android:name="com.toilatester.sms.listener.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.toilatester.smslistener.NettyServerService" />
-
+        <service android:name="com.toilatester.sms.listener.NettyServerService" />
+        <service android:name="com.toilatester.sms.listener.SMSListenerService" />
     </application>
 
 </manifest>

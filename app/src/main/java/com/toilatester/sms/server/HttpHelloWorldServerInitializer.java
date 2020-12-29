@@ -1,4 +1,4 @@
-package com.toilatester.smsserver;
+package com.toilatester.sms.server;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;

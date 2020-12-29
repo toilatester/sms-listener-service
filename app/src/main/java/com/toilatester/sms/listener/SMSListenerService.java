@@ -1,4 +1,4 @@
-package com.toilatester.smslistener;
+package com.toilatester.sms.listener;
 
 import android.app.Service;
 import android.content.Intent;

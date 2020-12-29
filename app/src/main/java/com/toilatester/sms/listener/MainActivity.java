@@ -1,4 +1,4 @@
-package com.toilatester.smslistener;
+package com.toilatester.sms.listener;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.toilatester.smslistener.R;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private Button startSMS, stopSMS, startServer, stopServer;

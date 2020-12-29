@@ -1,4 +1,4 @@
-package com.toilatester.smsserver;
+package com.toilatester.sms.server;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
