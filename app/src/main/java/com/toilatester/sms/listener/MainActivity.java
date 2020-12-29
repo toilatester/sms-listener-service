@@ -31,7 +31,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Permissions that need to be explicitly requested from end user.
      */
     private static final String[] REQUIRED_SDK_PERMISSIONS = new String[]{
-            Manifest.permission.READ_SMS, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECEIVE_SMS};
+            Manifest.permission.READ_SMS,
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.READ_SMS};
 
     private Button startSMS, stopSMS, startServer, stopServer, fetchSMS;
     private ReadSMS readSMS;
