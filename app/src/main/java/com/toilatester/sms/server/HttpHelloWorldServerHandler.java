@@ -1,5 +1,14 @@
 package com.toilatester.sms.server;
 
+import android.content.ContentResolver;
+import android.content.Context;
+
+import com.google.gson.Gson;
+import com.toilatester.sms.manager.ReadSMS;
+import com.toilatester.sms.models.SMSData;
+
+import java.util.List;
+
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,7 +25,18 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class HttpHelloWorldServerHandler extends ChannelInboundHandlerAdapter {
-    private static final byte[] CONTENT = { 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' };
+    private static final byte[] CONTENT = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd'};
+    private Context context;
+    private ContentResolver content;
+    private ServiceCallbacks serviceCallbacks;
+    private ReadSMS readSMS;
+
+    public HttpHelloWorldServerHandler(Context context, ContentResolver content, ServiceCallbacks serviceCallbacks) {
+        this.content = content;
+        this.context = context;
+        this.serviceCallbacks = serviceCallbacks;
+        this.readSMS = new ReadSMS(context, content, serviceCallbacks);
+    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -25,6 +45,7 @@ public class HttpHelloWorldServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+
         if (msg instanceof HttpRequest) {
             HttpRequest req = (HttpRequest) msg;
 
@@ -32,8 +53,10 @@ public class HttpHelloWorldServerHandler extends ChannelInboundHandlerAdapter {
                 ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
             }
             boolean keepAlive = HttpUtil.isKeepAlive(req);
-            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(CONTENT));
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
+            List<SMSData> smsMessages = this.readSMS.getAllSMSMessages();
+            String json = new Gson().toJson(smsMessages);
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(json.getBytes()));
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
 
             if (!keepAlive) {

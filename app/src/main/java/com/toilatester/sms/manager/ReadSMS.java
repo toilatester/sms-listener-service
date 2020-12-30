@@ -5,9 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Telephony;
-import android.widget.Toast;
 
 import com.toilatester.sms.models.SMSData;
+import com.toilatester.sms.server.ServiceCallbacks;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,10 +17,12 @@ public class ReadSMS {
 
     ContentResolver content;
     Context context;
+    ServiceCallbacks serviceCallbacks;
 
-    public ReadSMS(Context context, ContentResolver content) {
+    public ReadSMS(Context context, ContentResolver content, ServiceCallbacks serviceCallbacks) {
         this.content = content;
         this.context = context;
+        this.serviceCallbacks = serviceCallbacks;
     }
 
     public List<SMSData> getAllSMSMessages() {
@@ -28,11 +30,12 @@ public class ReadSMS {
         Uri uri = Uri.parse("content://sms/inbox");
         Cursor c = this.content.query(uri, null, null, null, null);
         if (c == null) {
-            Toast.makeText(this.context, "No message in SMS box", Toast.LENGTH_SHORT).show();
+            this.serviceCallbacks.showToast("No message in SMS box");
             return smsMessages;
         }
         int totalSMS = c.getCount();
-        Toast.makeText(this.context, String.format("Total %d message(s) in SMS box", totalSMS), Toast.LENGTH_SHORT).show();
+        System.out.println("============= Send Toast " + this.serviceCallbacks);
+        this.serviceCallbacks.showToast(String.format("Total %d message(s) in SMS box", totalSMS));
         if (c.moveToFirst()) {
             for (int j = 0; j < totalSMS; j++) {
                 String smsDate = c.getString(c.getColumnIndexOrThrow(Telephony.Sms.DATE));
@@ -42,6 +45,7 @@ public class ReadSMS {
                 switch (Integer.parseInt(c.getString(c.getColumnIndexOrThrow(Telephony.Sms.TYPE)))) {
                     case Telephony.Sms.MESSAGE_TYPE_INBOX:
                         smsMessages.add(new SMSData(number, body, date));
+                        this.serviceCallbacks.showToast(String.format("Phone number %s [%s]", number, body));
                         break;
                     case Telephony.Sms.MESSAGE_TYPE_SENT:
                     case Telephony.Sms.MESSAGE_TYPE_OUTBOX:
