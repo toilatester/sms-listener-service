@@ -17,19 +17,17 @@ public class HttpServer {
     private static Thread serverThread;
     private Context context;
     private ContentResolver content;
-    private ServiceCallbacks serviceCallbacks;
 
-    public HttpServer(Context context, ContentResolver content, ServiceCallbacks serviceCallbacks) {
+    public HttpServer(Context context, ContentResolver content) {
         this.content = content;
         this.context = context;
-        this.serviceCallbacks = serviceCallbacks;
     }
 
     public void startServer() {
         if (serverThread != null) {
             throw new IllegalStateException("Server is already running");
         }
-        Runnable httpServerRunnable = new HttpServerRunnable(this.context, this.content, this.serviceCallbacks);
+        Runnable httpServerRunnable = new HttpServerRunnable(this.context, this.content);
         serverThread = new Thread(httpServerRunnable);
         serverThread.start();
     }
@@ -46,12 +44,10 @@ public class HttpServer {
     private class HttpServerRunnable implements Runnable {
         private Context context;
         private ContentResolver content;
-        private ServiceCallbacks serviceCallbacks;
 
-        public HttpServerRunnable(Context context, ContentResolver content, ServiceCallbacks serviceCallbacks) {
+        public HttpServerRunnable(Context context, ContentResolver content) {
             this.content = content;
             this.context = context;
-            this.serviceCallbacks = serviceCallbacks;
         }
 
         public void run() {
@@ -59,10 +55,13 @@ public class HttpServer {
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
                 ServerBootstrap b = new ServerBootstrap();
-                b.option(ChannelOption.SO_BACKLOG, 1024);
                 b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                        .option(ChannelOption.SO_BACKLOG, 1024)
+                        .option(ChannelOption.SO_REUSEADDR, true)
+                        .option(ChannelOption.SO_KEEPALIVE, true)
+                        .option(ChannelOption.TCP_NODELAY, true)
                         .handler(new LoggingHandler(LogLevel.INFO))
-                        .childHandler(new HttpHelloWorldServerInitializer(this.context, this.content, this.serviceCallbacks));
+                        .childHandler(new HttpServerInitializer(this.context, this.content));
 
                 Channel ch = b.bind(PORT).sync().channel();
 
