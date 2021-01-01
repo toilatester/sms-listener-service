@@ -15,14 +15,13 @@ public class Error implements Handler {
 
     @Override
     public void setResponseContent() {
-        this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+        this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
         this.response.content().writeBytes("Error in backend!".getBytes());
-        this.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+        this.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, this.response.content().readableBytes());
     }
 
     @Override
     public void setResponseHeader() {
-        this.response.setStatus(HttpResponseStatus.OK);
         this.response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
     }
 

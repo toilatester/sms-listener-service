@@ -1,7 +1,7 @@
 package com.toilatester.sms.server.handlers;
 
 import com.google.gson.Gson;
-import com.toilatester.sms.manager.ReadSMS;
+import com.toilatester.sms.utils.ReadSMS;
 import com.toilatester.sms.models.SMSData;
 
 import java.util.List;
@@ -28,13 +28,12 @@ public class GetAllSMS implements Handler {
         String json = new Gson().toJson(smsMessages);
         this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
         this.response.content().writeBytes(Unpooled.wrappedBuffer(json.getBytes()));
-        this.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+        this.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, this.response.content().readableBytes());
     }
 
     @Override
     public void setResponseHeader() {
-        this.response.setStatus(HttpResponseStatus.OK);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
+        this.response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
     }
 
     @Override

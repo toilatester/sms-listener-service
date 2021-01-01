@@ -4,7 +4,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.util.ArrayMap;
 
-import com.toilatester.sms.manager.ReadSMS;
+import com.toilatester.sms.server.handlers.GetSMSByPhone;
+import com.toilatester.sms.utils.ReadSMS;
 import com.toilatester.sms.server.handlers.Error;
 import com.toilatester.sms.server.handlers.GetAllSMS;
 import com.toilatester.sms.server.handlers.GetLatestSMS;
@@ -27,8 +28,9 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private void initHandlers(Context context, ContentResolver content) {
         this.handlers.put("error", new Error());
-        this.handlers.put("allSMSMessages", new GetAllSMS(new ReadSMS(context, content)));
-        this.handlers.put("latestSMSMessage", new GetLatestSMS(new ReadSMS(context, content)));
+        this.handlers.put("all", new GetAllSMS(new ReadSMS(context, content)));
+        this.handlers.put("latest", new GetLatestSMS(new ReadSMS(context, content)));
+        this.handlers.put("byPhone", new GetSMSByPhone(new ReadSMS(context, content)));
     }
 
     @Override

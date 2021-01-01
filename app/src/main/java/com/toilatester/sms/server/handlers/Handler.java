@@ -3,9 +3,14 @@ package com.toilatester.sms.server.handlers;
 import io.netty.handler.codec.http.FullHttpResponse;
 
 public interface Handler {
-    public void setResponseContent();
 
-    public void setResponseHeader();
+    default void setRawRequestData(String requestData) {
 
-    public FullHttpResponse getResponse();
+    }
+
+    void setResponseContent();
+
+    void setResponseHeader();
+
+    FullHttpResponse getResponse();
 }

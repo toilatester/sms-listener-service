@@ -1,4 +1,4 @@
-package com.toilatester.sms.manager;
+package com.toilatester.sms.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -43,7 +43,20 @@ public class ReadSMS {
             return null;
         }
         c.moveToFirst();
-        return getCurrentSmsMessageData(c);
+        SMSData smsData = getCurrentSmsMessageData(c);
+        c.close();
+        return smsData;
+    }
+
+    public List<SMSData> getSMSByPhoneNumber(String phoneNumber) {
+        List<SMSData> smsMessages = new ArrayList<>();
+        List<SMSData> allMessages = getAllSMSMessages();
+        for (SMSData sms : allMessages) {
+            if (sms.getMobile().equalsIgnoreCase(phoneNumber)) {
+                smsMessages.add(sms);
+            }
+        }
+        return smsMessages;
     }
 
     private Cursor querySmsContent() {

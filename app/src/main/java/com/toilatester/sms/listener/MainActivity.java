@@ -13,8 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.toilatester.sms.manager.ReadSMS;
-import com.toilatester.sms.models.SMSData;
 import com.toilatester.smslistener.R;
 
 import java.util.ArrayList;
@@ -35,22 +33,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECEIVE_SMS,
             Manifest.permission.READ_SMS};
 
-    private Button startServer, stopServer, fetchSMS;
-    private ReadSMS readSMS;
-    private NettyServerService nettyServerService;
+    private Button startServer, stopServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this.readSMS = new ReadSMS(this.getApplicationContext(), this.getContentResolver());
+        startService(new Intent(this, NettyServerService.class));
+        
         this.startServer = (Button) findViewById(R.id.startServer);
         this.stopServer = (Button) findViewById(R.id.stopServer);
-        this.fetchSMS = (Button) findViewById(R.id.fetchSMS);
 
         this.startServer.setOnClickListener(this);
         this.stopServer.setOnClickListener(this);
-        this.fetchSMS.setOnClickListener(this);
     }
 
     @Override
@@ -59,11 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startService(new Intent(this, NettyServerService.class));
         } else if (view == stopServer) {
             stopService(new Intent(this, NettyServerService.class));
-        } else if (view == fetchSMS) {
-            List<SMSData> allSMSMessages = this.readSMS.getAllSMSMessages();
-            for (SMSData data : allSMSMessages) {
-                System.out.println("====================DEBUG: " + data.getReceiveDate().toString() + " - " + data.getMobile() + " [" + data.getMessage() + "]");
-            }
         }
     }
 

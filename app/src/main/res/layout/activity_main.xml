@@ -21,7 +21,7 @@
             android:id="@+id/serverTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start Server Listener Service"
+            android:text="@string/service_name"
             android:textAlignment="center"
             android:textColor="#2E2929"
             android:textColorLink="#E17F7F"
@@ -37,7 +37,7 @@
                 android:id="@+id/startServer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Start Server" />
+                android:text="@string/start_server" />
 
         </LinearLayout>
 
@@ -50,50 +50,11 @@
                 android:id="@+id/stopServer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Stop Server" />
+                android:text="@string/stop_server" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="450dp"
-        android:layout_marginBottom="200dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/fetchSMSTextView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Fetch SMS Data"
-            android:textAlignment="center"
-            android:textColor="#2E2929"
-            android:textColorLink="#E17F7F"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-
-            <Button
-                android:id="@+id/fetchSMS"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Fetch SMS Data" />
-
-        </LinearLayout>
-
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
