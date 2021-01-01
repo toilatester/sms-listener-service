@@ -63,10 +63,10 @@ public class HttpServer {
                         .handler(new LoggingHandler(LogLevel.INFO))
                         .childHandler(new HttpServerInitializer(this.context, this.content));
 
-                Channel ch = b.bind(PORT).sync().channel();
+                Channel ch = b.bind("0.0.0.0",PORT).sync().channel();
 
-                System.err
-                        .println("Open your web browser and navigate to " + "http" + "://127.0.0.1:" + PORT + '/');
+                System.out
+                        .println("Open your web browser and navigate to " + "http" + "://0.0.0.0:" + PORT + '/');
 
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
