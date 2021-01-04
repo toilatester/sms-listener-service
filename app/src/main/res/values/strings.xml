@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">SMSListener</string>
-    <string name="start_server">Start Server</string>
-    <string name="stop_server">Stop Server</string>
-    <string name="service_name">Start Server Listener Service</string>
-</resources>
