@@ -3,6 +3,9 @@ package com.toilatester.sms.server;
 import android.content.ContentResolver;
 import android.content.Context;
 
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -13,6 +16,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
 public class HttpServer {
+    private final Logger LOG = Logger.getLogger(HttpServer.class.getName());
     static final int PORT = 8181;
     private static Thread serverThread;
     private Context context;
@@ -65,14 +69,13 @@ public class HttpServer {
 
                 Channel ch = b.bind("0.0.0.0",PORT).sync().channel();
 
-                System.out
-                        .println("Open your web browser and navigate to " + "http" + "://0.0.0.0:" + PORT + '/');
+                LOG.info("Open your web browser and navigate to " + "http" + "://0.0.0.0:" + PORT + '/');
 
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
-                // ignore
+                LOG.warning(e.getMessage());
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                LOG.severe(e.getMessage());
             } finally {
                 bossGroup.shutdownGracefully();
                 workerGroup.shutdownGracefully();

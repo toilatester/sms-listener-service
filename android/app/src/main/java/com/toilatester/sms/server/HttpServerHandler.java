@@ -78,34 +78,49 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
 
     private void postRequestProcessing(ChannelHandlerContext ctx, FullHttpRequest req) {
-        if (HttpUtil.is100ContinueExpected(req)) {
-            ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
-        }
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NO_CONTENT);
-        String uri = req.uri();
-        for (Entry<String, Handler> handler : handlers.entrySet()) {
-            if (this.isMatchedHandler(uri, handler.getKey())) {
-                handler.getValue().setRawRequestData(req.content().toString(StandardCharsets.UTF_8));
-                ctx.write(handler.getValue().getResponse()).addListener(ChannelFutureListener.CLOSE);
-                return;
+        try {
+            if (HttpUtil.is100ContinueExpected(req)) {
+                ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
             }
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NO_CONTENT);
+            String uri = req.uri();
+            for (Entry<String, Handler> handler : handlers.entrySet()) {
+                if (this.isMatchedHandler(uri, handler.getKey())) {
+                    handler.getValue().setRawRequestData(req.content().toString(StandardCharsets.UTF_8));
+                    ctx.write(handler.getValue().getResponse()).addListener(ChannelFutureListener.CLOSE);
+                    return;
+                }
+            }
+            ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+        } catch (Exception e) {
+            ctx.write(this.requestProcessingResponseErrorGenerate(e)).addListener(ChannelFutureListener.CLOSE);
         }
-        ctx.write(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     private void getRequestProcessing(ChannelHandlerContext ctx, FullHttpRequest req) {
-        if (HttpUtil.is100ContinueExpected(req)) {
-            ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
-        }
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NO_CONTENT);
-        String uri = req.uri();
-        for (Entry<String, Handler> handler : handlers.entrySet()) {
-            if (this.isMatchedHandler(uri, handler.getKey())) {
-                ctx.write(handler.getValue().getResponse()).addListener(ChannelFutureListener.CLOSE);
-                return;
+        try {
+            if (HttpUtil.is100ContinueExpected(req)) {
+                ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
             }
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NO_CONTENT);
+            String uri = req.uri();
+            for (Entry<String, Handler> handler : handlers.entrySet()) {
+                if (this.isMatchedHandler(uri, handler.getKey())) {
+                    ctx.write(handler.getValue().getResponse()).addListener(ChannelFutureListener.CLOSE);
+                    return;
+                }
+            }
+            ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+        } catch (Exception e) {
+            ctx.write(this.requestProcessingResponseErrorGenerate(e)).addListener(ChannelFutureListener.CLOSE);
         }
-        ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private FullHttpResponse requestProcessingResponseErrorGenerate(Exception e) {
+        FullHttpResponse errorResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
+        errorResponse.content().writeBytes(String.format("Error in backend! %s", e.getMessage()).getBytes());
+        errorResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, errorResponse.content().readableBytes());
+        return errorResponse;
     }
 
     private boolean isMatchedHandler(String uri, String handlerUri) {
