@@ -5,6 +5,7 @@ import com.toilatester.sms.server.handlers.Handler;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -20,6 +21,7 @@ import io.netty.handler.codec.http.HttpVersion;
 
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
+    private final Logger LOG = Logger.getLogger(HttpServerHandler.class.getName());
     private Map<String, Handler> handlers;
 
     public HttpServerHandler(Map<String, Handler> handlers) {
@@ -45,7 +47,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        LOG.severe(cause.getMessage());
         ctx.close();
         super.exceptionCaught(ctx, cause);
     }
@@ -93,7 +95,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             }
             ctx.write(response).addListener(ChannelFutureListener.CLOSE);
         } catch (Exception e) {
-            ctx.write(this.requestProcessingResponseErrorGenerate(e)).addListener(ChannelFutureListener.CLOSE);
+            ctx.write(this.generateRequestProcessingErrorResponseData(e)).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
@@ -112,11 +114,11 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             }
             ctx.write(response).addListener(ChannelFutureListener.CLOSE);
         } catch (Exception e) {
-            ctx.write(this.requestProcessingResponseErrorGenerate(e)).addListener(ChannelFutureListener.CLOSE);
+            ctx.write(this.generateRequestProcessingErrorResponseData(e)).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
-    private FullHttpResponse requestProcessingResponseErrorGenerate(Exception e) {
+    private FullHttpResponse generateRequestProcessingErrorResponseData(Exception e) {
         FullHttpResponse errorResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
         errorResponse.content().writeBytes(String.format("Error in backend! %s", e.getMessage()).getBytes());
         errorResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, errorResponse.content().readableBytes());
