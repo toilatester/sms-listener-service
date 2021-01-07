@@ -6,6 +6,7 @@ This is a plugin for getting OTP code via Restful API. Below is the list of use 
 2. Get the latest SMS that is sent to the mobile devices
 3. Get a list of SMS by phone number
 
+![android-demo](../docs/demo/android-demo.gif)
 If you are interested in this project, please drop a ⭐!
 
 ## Usage
@@ -26,6 +27,6 @@ This plugin will start a netty server on an android mobile device and it will us
 > adb forward tcp:8181 tcp:8181
 
 4. Get the SMS that contains OTP code with list of support APIs below:
-GET http://localhost:8181/all -> get all SMS
-GET http://localhost:8181/latest -> get latest SMS
-POST http://localhost:8181/byPhone -> find SMS by phone number with JSON post data format: {"phone": "192"}
+- GET http://localhost:8181/all -> get all SMS
+- GET http://localhost:8181/latest -> get latest SMS
+- POST http://localhost:8181/byPhone -> find SMS by phone number with JSON post data format: {"phone": "192"}
