@@ -17,21 +17,22 @@ import io.netty.handler.logging.LoggingHandler;
 
 public class HttpServer {
     private final Logger LOG = Logger.getLogger(HttpServer.class.getName());
-    static final int PORT = 8181;
+    private int serverPort;
     private static Thread serverThread;
     private Context context;
     private ContentResolver content;
 
-    public HttpServer(Context context, ContentResolver content) {
+    public HttpServer(Context context, ContentResolver content, int serverPort) {
         this.content = content;
         this.context = context;
+        this.serverPort = serverPort;
     }
 
     public void startServer() {
         if (serverThread != null) {
             throw new IllegalStateException("Server is already running");
         }
-        Runnable httpServerRunnable = new HttpServerRunnable(this.context, this.content);
+        Runnable httpServerRunnable = new HttpServerRunnable(this.context, this.content, this.serverPort);
         serverThread = new Thread(httpServerRunnable);
         serverThread.start();
     }
@@ -48,13 +49,16 @@ public class HttpServer {
     private class HttpServerRunnable implements Runnable {
         private Context context;
         private ContentResolver content;
+        private int serverPort;
 
-        public HttpServerRunnable(Context context, ContentResolver content) {
+        public HttpServerRunnable(Context context, ContentResolver content, int serverPort) {
             this.content = content;
             this.context = context;
+            this.serverPort = serverPort;
         }
 
         public void run() {
+            LOG.info("Server Port: " + this.serverPort);
             EventLoopGroup bossGroup = new NioEventLoopGroup(1);
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
@@ -67,13 +71,13 @@ public class HttpServer {
                         .handler(new LoggingHandler(LogLevel.INFO))
                         .childHandler(new HttpServerInitializer(this.context, this.content));
 
-                Channel ch = b.bind("0.0.0.0",PORT).sync().channel();
+                Channel ch = b.bind("0.0.0.0", this.serverPort).sync().channel();
 
-                LOG.info("Open your web browser and navigate to " + "http" + "://0.0.0.0:" + PORT + '/');
+                LOG.info("Open your web browser and navigate to " + "http" + "://0.0.0.0:" + this.serverPort + '/');
 
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
-                LOG.warning(e.getMessage());
+                LOG.warning("Stop SMS server");
             } catch (Exception e) {
                 LOG.severe(e.getMessage());
             } finally {

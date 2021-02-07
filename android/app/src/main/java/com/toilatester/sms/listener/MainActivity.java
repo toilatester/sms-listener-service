@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,29 +31,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private static final String[] REQUIRED_SDK_PERMISSIONS = new String[]{
             Manifest.permission.READ_SMS,
-            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECEIVE_SMS,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.FOREGROUND_SERVICE,
+            Manifest.permission.RECEIVE_SMS,
             Manifest.permission.READ_SMS};
 
     private Button startServer, stopServer;
+    private int serverPort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.serverPort = this.getIntent().getIntExtra("serverPort", 8181);
         checkPermissions();
         setContentView(R.layout.activity_main);
-        startService(new Intent(this, NettyServerService.class));
-        
-        this.startServer = (Button) findViewById(R.id.startServer);
-        this.stopServer = (Button) findViewById(R.id.stopServer);
-
-        this.startServer.setOnClickListener(this);
-        this.stopServer.setOnClickListener(this);
+        startSmsService(this.serverPort);
+        bindActionListener();
+        moveTaskToBack(true);
     }
 
     @Override
     public void onClick(View view) {
         if (view == startServer) {
-            startService(new Intent(this, NettyServerService.class));
+            startService(createSmsServerIntent(this.serverPort));
         } else if (view == stopServer) {
             stopService(new Intent(this, NettyServerService.class));
         }
@@ -80,6 +81,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void startSmsService(int serverPort) {
+        Intent smsServiceIntent = createSmsServerIntent(serverPort);
+        startService(smsServiceIntent);
+    }
+
+    private Intent createSmsServerIntent(int serverPort) {
+        Intent smsIntent = new Intent(this, NettyServerService.class);
+        smsIntent.putExtra("serverPort", serverPort);
+        return smsIntent;
+    }
+
+    private void bindActionListener() {
+        this.startServer = (Button) findViewById(R.id.startServer);
+        this.stopServer = (Button) findViewById(R.id.stopServer);
+
+        this.startServer.setOnClickListener(this);
+        this.stopServer.setOnClickListener(this);
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
