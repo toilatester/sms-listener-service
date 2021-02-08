@@ -20,9 +20,9 @@ This plugin will start a netty server on an android mobile device and it will us
 2. Start the plugin and run the sms-listener server on the Andorid device, you can specific SMS Server port by changing the value in --ei serverPort your_port_number
 
 > adb shell am start -n
-> "com.toilatester.smslistener/com.toilatester.sms.listener.MainActivity" --ei serverPort 8181
+> "com.toilatester.smslistener/com.toilatester.sms.MainActivity" --ei serverPort 8181
 
-3. Forward the request from adb server to sms-listener server (if you use a real device, you can get the device IP and don't need to run the command below). In case you have multiple devices on the machine, you should use the proxy server such as Nginx as the controller to get correctly SMS that is associated with the device or you can use the IP that is assigned to the device
+1. Forward the request from adb server to sms-listener server (if you use a real device, you can get the device IP and don't need to run the command below). In case you have multiple devices on the machine, you should use the proxy server such as Nginx as the controller to get correctly SMS that is associated with the device or you can use the IP that is assigned to the device
 
 > adb forward tcp:8181 tcp:8181
 
