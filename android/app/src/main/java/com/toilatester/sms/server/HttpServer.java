@@ -21,6 +21,8 @@ public class HttpServer {
     private static Thread serverThread;
     private Context context;
     private ContentResolver content;
+    private static boolean serverRunning = false;
+
 
     public HttpServer(Context context, ContentResolver content, int serverPort) {
         this.content = content;
@@ -35,6 +37,7 @@ public class HttpServer {
         Runnable httpServerRunnable = new HttpServerRunnable(this.context, this.content, this.serverPort);
         serverThread = new Thread(httpServerRunnable);
         serverThread.start();
+        serverRunning = true;
     }
 
     public void stopServer() {
@@ -44,6 +47,11 @@ public class HttpServer {
 
         serverThread.interrupt();
         serverThread = null;
+        serverRunning = false;
+    }
+
+    public boolean isServerRunning() {
+        return serverRunning;
     }
 
     private class HttpServerRunnable implements Runnable {
@@ -78,6 +86,7 @@ public class HttpServer {
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 LOG.warning("Stop SMS server");
+                serverRunning = false;
             } catch (Exception e) {
                 LOG.severe(e.getMessage());
             } finally {

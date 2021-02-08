@@ -28,14 +28,14 @@ public class GetSMSByPhone implements Handler {
     public void setRawRequestData(String requestData) {
         this.rawRequestData = requestData;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public void setResponseContent() {
         try {
             Gson gson = new Gson();
             Map<String, String> jsonObject = gson.fromJson(this.rawRequestData, Map.class);
-            List<SMSData> smsMessages = this.readSMS.getSMSByPhoneNumber(jsonObject.get("phone"));
+            List<SMSData> smsMessages = this.readSMS.getSMSByPhoneNumber(jsonObject.get("phone"), jsonObject.get("limit"));
             String json = new Gson().toJson(smsMessages);
             this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
             this.response.content().writeBytes(Unpooled.wrappedBuffer(json.getBytes()));

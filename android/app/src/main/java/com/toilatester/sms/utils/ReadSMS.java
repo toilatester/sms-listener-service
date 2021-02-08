@@ -48,13 +48,16 @@ public class ReadSMS {
         return smsData;
     }
 
-    public List<SMSData> getSMSByPhoneNumber(String phoneNumber) {
+    public List<SMSData> getSMSByPhoneNumber(String phoneNumber, String limit) {
         List<SMSData> smsMessages = new ArrayList<>();
         List<SMSData> allMessages = getAllSMSMessages();
+        int fetchSMSLimit = isNumeric(limit) ? Integer.parseInt(limit) : 10;
         for (SMSData sms : allMessages) {
             if (sms.getMobile().equalsIgnoreCase(phoneNumber)) {
                 smsMessages.add(sms);
             }
+            if (fetchSMSLimit-- <= 1)
+                return smsMessages;
         }
         return smsMessages;
     }
@@ -79,4 +82,15 @@ public class ReadSMS {
         }
     }
 
+    public boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            int i = Integer.parseInt(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 }

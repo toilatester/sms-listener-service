@@ -22,6 +22,7 @@ public class NettyServerService extends Service {
     private final Logger LOG = Logger.getLogger(HttpServer.class.getName());
     public static final String CHANNEL_ID = "SMSListenerForegroundServiceChannel";
     private static HttpServer server;
+    private int serverPort;
 
     @Nullable
     @Override
@@ -50,8 +51,8 @@ public class NettyServerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (server == null) {
-            int serverPort = intent.getIntExtra("serverPort", 8181);
-            startNettyServer(serverPort);
+            this.serverPort = intent.getIntExtra("serverPort", 8181);
+            startNettyServer(this.serverPort);
         }
         return START_STICKY;
     }
@@ -66,17 +67,20 @@ public class NettyServerService extends Service {
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         LOG.warning("onTaskRemoved remove task");
+        if (!server.isServerRunning()) {
+            startNettyServer(this.serverPort);
+        }
     }
 
     private void startNettyServer(int serverPort) {
-        if (server != null)
+        if (server != null && server.isServerRunning())
             return;
         server = new HttpServer(this.getApplicationContext(), this.getContentResolver(), serverPort);
         server.startServer();
         LOG.info("Completed start Netty server");
     }
 
-    private void stopNettyServer(){
+    private void stopNettyServer() {
         if (server != null) {
             server.stopServer();
             server = null;
