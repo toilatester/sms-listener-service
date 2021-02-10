@@ -1,13 +1,17 @@
 package com.toilatester.sms.listener;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -23,6 +27,8 @@ public class NettyServerService extends Service {
     public static final String CHANNEL_ID = "SMSListenerForegroundServiceChannel";
     private static HttpServer server;
     private int serverPort;
+    private PowerManager.WakeLock wakeLock;
+    private WifiManager.WifiLock wifiLock;
 
     @Nullable
     @Override
@@ -78,6 +84,9 @@ public class NettyServerService extends Service {
         server = new HttpServer(this.getApplicationContext(), this.getContentResolver(), serverPort);
         server.startServer();
         LOG.info("Completed start Netty server");
+        createWakeLock();
+        createWifiLock();
+
     }
 
     private void stopNettyServer() {
@@ -86,6 +95,24 @@ public class NettyServerService extends Service {
             server = null;
             LOG.warning("Stop Netty server");
         }
+    }
+
+    private void createWakeLock() {
+        Context appContext = getApplicationContext();
+        PowerManager pm = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getSimpleName());
+        wakeLock.acquire();
+        LOG.info("Completed create wake lock");
+    }
+
+    private void createWifiLock() {
+        Context appContext = getApplicationContext();
+        WifiManager wm = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+        if (!wm.isWifiEnabled())
+            wm.setWifiEnabled(true);
+        wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, this.getClass().getSimpleName());
+        wifiLock.acquire();
+        LOG.info("Completed create wifi lock");
     }
 
     private void createNotificationChannel() {

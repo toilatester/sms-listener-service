@@ -39,7 +39,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.INTERNET,
             Manifest.permission.CHANGE_WIFI_STATE,
             Manifest.permission.ACCESS_WIFI_STATE,
-            Manifest.permission.FOREGROUND_SERVICE};
+            Manifest.permission.FOREGROUND_SERVICE,
+            Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Manifest.permission.WAKE_LOCK
+        };
 
     private Button startServer, stopServer;
     private int serverPort;
