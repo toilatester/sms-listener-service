@@ -55,8 +55,9 @@ public class ReadSMS {
         for (SMSData sms : allMessages) {
             if (sms.getMobile().equalsIgnoreCase(phoneNumber)) {
                 smsMessages.add(sms);
+                fetchSMSLimit--;
             }
-            if (fetchSMSLimit-- <= 1)
+            if (fetchSMSLimit <= 1)
                 return smsMessages;
         }
         return smsMessages;
