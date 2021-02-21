@@ -10,9 +10,6 @@ import io.netty.handler.codec.http.HttpVersion;
 public class Error implements Handler {
     private FullHttpResponse response;
 
-    public Error() {
-    }
-
     @Override
     public void setResponseContent() {
         this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);

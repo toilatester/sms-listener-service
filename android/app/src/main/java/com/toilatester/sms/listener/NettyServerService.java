@@ -1,6 +1,5 @@
 package com.toilatester.sms.listener;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -23,7 +22,7 @@ import com.toilatester.smslistener.R;
 import java.util.logging.Logger;
 
 public class NettyServerService extends Service {
-    private final Logger LOG = Logger.getLogger(HttpServer.class.getName());
+    private static final Logger LOG = Logger.getLogger(NettyServerService.class.getName());
     public static final String CHANNEL_ID = "SMSListenerForegroundServiceChannel";
     private static HttpServer server;
     private int serverPort;
@@ -49,7 +48,7 @@ public class NettyServerService extends Service {
                 .setContentText("SMSListenerService")
                 .setSmallIcon(R.mipmap.toilatester)
                 .setContentIntent(pendingIntent)
-                .setPriority(Notification.PRIORITY_HIGH)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
                 .build();
         startForeground(1, notification);
     }
@@ -78,7 +77,7 @@ public class NettyServerService extends Service {
         }
     }
 
-    private void startNettyServer(int serverPort) {
+    private synchronized void startNettyServer(int serverPort) {
         if (server != null && server.isServerRunning())
             return;
         server = new HttpServer(this.getApplicationContext(), this.getContentResolver(), serverPort);
@@ -89,10 +88,12 @@ public class NettyServerService extends Service {
 
     }
 
-    private void stopNettyServer() {
+    private synchronized void stopNettyServer() {
         if (server != null) {
             server.stopServer();
             server = null;
+            this.wifiLock.release();
+            this.wakeLock.release();
             LOG.warning("Stop Netty server");
         }
     }
@@ -100,18 +101,20 @@ public class NettyServerService extends Service {
     private void createWakeLock() {
         Context appContext = getApplicationContext();
         PowerManager pm = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getSimpleName());
-        wakeLock.acquire();
+        this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getSimpleName());
+        this.wakeLock.acquire();
         LOG.info("Completed create wake lock");
     }
 
     private void createWifiLock() {
         Context appContext = getApplicationContext();
         WifiManager wm = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-        if (!wm.isWifiEnabled())
-            wm.setWifiEnabled(true);
-        wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, this.getClass().getSimpleName());
-        wifiLock.acquire();
+        if (!wm.isWifiEnabled()) {
+            LOG.severe("Wifi is disabled");
+            throw new IllegalStateException("Wifi is disabled");
+        }
+        this.wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, this.getClass().getSimpleName());
+        this.wifiLock.acquire();
         LOG.info("Completed create wifi lock");
     }
 

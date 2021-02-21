@@ -69,15 +69,15 @@ public class ReadSMS {
     }
 
     private SMSData getCurrentSmsMessageData(Cursor c) {
-        String smsDate = c.getString(c.getColumnIndexOrThrow(Telephony.Sms.DATE));
-        String number = c.getString(c.getColumnIndexOrThrow(Telephony.Sms.ADDRESS));
-        String body = c.getString(c.getColumnIndexOrThrow(Telephony.Sms.BODY));
+        String smsDate = c.getString(c.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.DATE));
+        String number = c.getString(c.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.ADDRESS));
+        String body = c.getString(c.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.BODY));
         Date date = new Date(Long.valueOf(smsDate));
-        switch (Integer.parseInt(c.getString(c.getColumnIndexOrThrow(Telephony.Sms.TYPE)))) {
-            case Telephony.Sms.MESSAGE_TYPE_INBOX:
+        switch (Integer.parseInt(c.getString(c.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.TYPE)))) {
+            case Telephony.TextBasedSmsColumns.MESSAGE_TYPE_INBOX:
                 return new SMSData(number, body, date);
-            case Telephony.Sms.MESSAGE_TYPE_SENT:
-            case Telephony.Sms.MESSAGE_TYPE_OUTBOX:
+            case Telephony.TextBasedSmsColumns.MESSAGE_TYPE_SENT:
+            case Telephony.TextBasedSmsColumns.MESSAGE_TYPE_OUTBOX:
             default:
                 return null;
         }
@@ -88,7 +88,7 @@ public class ReadSMS {
             return false;
         }
         try {
-            int i = Integer.parseInt(strNum);
+            Integer.parseInt(strNum);
         } catch (NumberFormatException nfe) {
             return false;
         }

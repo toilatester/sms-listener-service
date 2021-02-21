@@ -21,7 +21,7 @@ import io.netty.handler.codec.http.HttpVersion;
 
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
-    private final Logger LOG = Logger.getLogger(HttpServerHandler.class.getName());
+    private static final Logger LOG = Logger.getLogger(HttpServerHandler.class.getName());
     private Map<String, Handler> handlers;
 
     public HttpServerHandler(Map<String, Handler> handlers) {
@@ -37,7 +37,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (!(msg instanceof FullHttpRequest)) {
-            errorBackendProcessingResponse(ctx, msg);
+            errorBackendProcessingResponse(ctx);
             super.channelRead(ctx, msg);
             return;
         }
@@ -52,7 +52,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         super.exceptionCaught(ctx, cause);
     }
 
-    private void errorBackendProcessingResponse(ChannelHandlerContext ctx, Object msg) {
+    private void errorBackendProcessingResponse(ChannelHandlerContext ctx) {
         Handler errorHandler = this.handlers.get("error");
         ctx.write(errorHandler.getResponse());
     }

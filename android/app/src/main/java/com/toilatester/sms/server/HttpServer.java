@@ -3,7 +3,6 @@ package com.toilatester.sms.server;
 import android.content.ContentResolver;
 import android.content.Context;
 
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -14,16 +13,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.NetUtil;
 
 public class HttpServer {
-    private final Logger LOG = Logger.getLogger(HttpServer.class.getName());
+    private static final Logger LOG = Logger.getLogger(HttpServer.class.getName());
     private int serverPort;
     private static Thread serverThread;
     private Context context;
     private ContentResolver content;
     private static boolean serverRunning = false;
-
 
     public HttpServer(Context context, ContentResolver content, int serverPort) {
         this.content = content;
@@ -31,7 +28,7 @@ public class HttpServer {
         this.serverPort = serverPort;
     }
 
-    public void startServer() {
+    public synchronized  void startServer() {
         if (serverThread != null) {
             throw new IllegalStateException("Server is already running");
         }
@@ -41,7 +38,7 @@ public class HttpServer {
         serverRunning = true;
     }
 
-    public void stopServer() {
+    public synchronized void stopServer() {
         if (serverThread == null) {
             return;
         }
@@ -66,8 +63,8 @@ public class HttpServer {
             this.serverPort = serverPort;
         }
 
-        public void run() {
-            LOG.info("Server Port: " + this.serverPort);
+        public synchronized void run() {
+            LOG.info( "Server Port: " + this.serverPort);
             EventLoopGroup bossGroup = new NioEventLoopGroup(1);
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
@@ -90,6 +87,7 @@ public class HttpServer {
             } catch (InterruptedException e) {
                 LOG.warning("Stop SMS server");
                 serverRunning = false;
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 LOG.severe(e.getMessage());
             } finally {

@@ -3,7 +3,8 @@ package com.toilatester.sms.models;
 import java.util.Date;
 
 public class SMSData {
-    String mobile, message;
+    private String mobile;
+    private String message;
 
     Date receiveDate;
 

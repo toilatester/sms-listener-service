@@ -10,7 +10,6 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,7 +18,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.toilatester.sms.listener.NettyServerService;
-import com.toilatester.sms.server.HttpServer;
 import com.toilatester.smslistener.R;
 
 import java.util.ArrayList;
@@ -28,11 +26,11 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private final Logger LOG = Logger.getLogger(MainActivity.class.getName());
+    private static final Logger LOG = Logger.getLogger(MainActivity.class.getName());
     /**
      * permissions request code
      */
-    private final static int REQUEST_CODE_ASK_PERMISSIONS = 1;
+    private static final int REQUEST_CODE_ASK_PERMISSIONS = 1;
 
     /**
      * Permissions that need to be explicitly requested from end user.
@@ -50,7 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.WAKE_LOCK
     };
 
-    private Button startServer, stopServer;
+    private Button startServer;
+    private Button stopServer;
     private int serverPort;
 
     @Override
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected void checkPermissions() {
-        final List<String> missingPermissions = new ArrayList<String>();
+        final List<String> missingPermissions = new ArrayList<>();
         // check all required dynamic permissions
         for (final String permission : REQUIRED_SDK_PERMISSIONS) {
             final int result = ContextCompat.checkSelfPermission(this, permission);
@@ -123,34 +122,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Intent intent = new Intent();
             String packageName = getPackageName();
-            LOG.info("Get Package Name To Ignore Doze Mode: " + packageName);
+            LOG.info(String.format("Get Package Name To Ignore Doze Mode: %s", packageName));
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                 intent.setData(Uri.parse("package:" + packageName));
                 startActivity(intent);
-                LOG.info("Completed Add Package Name To Ignore Doze Mode: " + packageName);
+                LOG.info(String.format("Completed Add Package Name To Ignore Doze Mode: %s", packageName));
             }
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_ASK_PERMISSIONS:
-                for (int index = permissions.length - 1; index >= 0; --index) {
-                    if (grantResults[index] != PackageManager.PERMISSION_GRANTED) {
-                        // exit the app if one permission is not granted
-                        Toast.makeText(this, "Required permission '" + permissions[index]
-                                + "' not granted, exiting", Toast.LENGTH_LONG).show();
-                        finish();
-                        return;
-                    }
-                }
-                // all permissions were granted
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
+            grantPermission(permissions, grantResults);
+        } else
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void grantPermission(String[] permissions, int[] grantResults) {
+        for (int index = permissions.length - 1; index >= 0; --index) {
+            if (grantResults[index] != PackageManager.PERMISSION_GRANTED) {
+                // exit the app if one permission is not granted
+                Toast.makeText(this, "Required permission '" + permissions[index]
+                        + "' not granted, exiting", Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
         }
     }
 }
