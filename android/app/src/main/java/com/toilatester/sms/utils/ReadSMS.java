@@ -57,7 +57,7 @@ public class ReadSMS {
                 smsMessages.add(sms);
                 fetchSMSLimit--;
             }
-            if (fetchSMSLimit <= 1)
+            if (fetchSMSLimit <= 0)
                 return smsMessages;
         }
         return smsMessages;
