@@ -12,12 +12,15 @@ import com.toilatester.sms.server.handlers.GetLatestSMS;
 import com.toilatester.sms.server.handlers.Handler;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     Map<String, Handler> handlers = new ArrayMap<>();
@@ -36,6 +39,8 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     public void initChannel(SocketChannel ch) {
         ChannelPipeline p = ch.pipeline();
+        p.addLast("readTimeout",new ReadTimeoutHandler(30, TimeUnit.SECONDS));
+        p.addLast("writeTimeout",new WriteTimeoutHandler(30, TimeUnit.SECONDS));
         p.addLast("codec", new HttpServerCodec());
         p.addLast("aggregator", new HttpObjectAggregator(65536));
         p.addLast("listener/handlers", new HttpServerHandler(this.handlers));

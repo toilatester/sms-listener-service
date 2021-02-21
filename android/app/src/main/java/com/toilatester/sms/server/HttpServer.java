@@ -14,6 +14,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.NetUtil;
 
 public class HttpServer {
     private final Logger LOG = Logger.getLogger(HttpServer.class.getName());
@@ -76,6 +77,8 @@ public class HttpServer {
                         .option(ChannelOption.SO_REUSEADDR, true)
                         .option(ChannelOption.SO_KEEPALIVE, true)
                         .option(ChannelOption.TCP_NODELAY, true)
+                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,30000)
+                        .option(ChannelOption.SO_TIMEOUT,30000)
                         .handler(new LoggingHandler(LogLevel.INFO))
                         .childHandler(new HttpServerInitializer(this.context, this.content));
 

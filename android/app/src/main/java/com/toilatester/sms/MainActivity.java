@@ -3,8 +3,11 @@ package com.toilatester.sms;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,13 +19,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.toilatester.sms.listener.NettyServerService;
+import com.toilatester.sms.server.HttpServer;
 import com.toilatester.smslistener.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private final Logger LOG = Logger.getLogger(MainActivity.class.getName());
     /**
      * permissions request code
      */
@@ -42,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.FOREGROUND_SERVICE,
             Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
             Manifest.permission.WAKE_LOCK
-        };
+    };
 
     private Button startServer, stopServer;
     private int serverPort;
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.serverPort = this.getIntent().getIntExtra("serverPort", 8181);
         checkPermissions();
         setContentView(R.layout.activity_main);
+        ignoreDozeMode();
         startSmsService(this.serverPort);
         bindActionListener();
         moveTaskToBack(true);
@@ -110,6 +117,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         this.startServer.setOnClickListener(this);
         this.stopServer.setOnClickListener(this);
+    }
+
+    private void ignoreDozeMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent();
+            String packageName = getPackageName();
+            LOG.info("Get Package Name To Ignore Doze Mode: " + packageName);
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+                LOG.info("Completed Add Package Name To Ignore Doze Mode: " + packageName);
+            }
+        }
     }
 
     @Override
